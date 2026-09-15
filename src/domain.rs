@@ -1,4 +1,4 @@
-use bevy::prelude::Component;
+use bevy::prelude::{Component, Resource};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PieceColor {
@@ -27,6 +27,11 @@ pub struct ChessPiece {
     pub color: PieceColor,
     pub kind: PieceKind,
     pub square: Square,
+}
+
+#[derive(Resource)]
+struct ChessGame {
+    turn: PieceColor,
 }
 
 #[derive(Component)]

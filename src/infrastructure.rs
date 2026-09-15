@@ -19,9 +19,7 @@ pub const SQUARE_SIZE: f32 = BOARD_SIZE / 8.0;
  */
 fn square_to_world(square: Square) -> Vec3 {
     let x = -BOARD_SIZE / 2.0 + SQUARE_SIZE / 2.0 + square.file as f32 * SQUARE_SIZE;
-
     let y = -BOARD_SIZE / 2.0 + SQUARE_SIZE / 2.0 + square.rank as f32 * SQUARE_SIZE;
-
     Vec3::new(x * BOARD_SCALE, y * BOARD_SCALE, 1.0)
 }
 
@@ -30,7 +28,6 @@ fn square_to_world(square: Square) -> Vec3 {
  */
 fn world_to_square(position: Vec2) -> Option<Square> {
     let board_size = BOARD_SIZE * BOARD_SCALE;
-
     let x = position.x + board_size / 2.0;
     let y = position.y + board_size / 2.0;
 
@@ -40,7 +37,6 @@ fn world_to_square(position: Vec2) -> Option<Square> {
 
     let file = (x / (SQUARE_SIZE * BOARD_SCALE)) as u8;
     let rank = (y / (SQUARE_SIZE * BOARD_SCALE)) as u8;
-
     Some(Square { file, rank })
 }
 
@@ -69,7 +65,6 @@ fn spawn_piece(
     };
 
     let path = format!("{GAME_THEME}/{color_name}_{piece_name}.png");
-
     let image = asset_server.load(path);
 
     commands.spawn((
@@ -263,6 +258,45 @@ pub fn init_game(mut commands: Commands, asset_server: Res<AssetServer>) {
 
 /**
  * seleccionar una pieza del tablero
+ *
+ *             JUGADOR
+ *                │
+ *              CLICK
+ *                │
+ *                ▼
+ *      ┌──────────────────┐
+ *      │ Sistema selección│
+ *      └────────┬─────────┘
+ *               │
+ *        ¿hay Selected?
+ *          /          \
+ *        NO            SÍ
+ *        │             │
+ *        ▼             ▼
+ * seleccionar      ¿pieza propia
+ *    pieza          en click?
+ *                  /        \
+ *                SÍ          NO
+ *                │            │
+ *                ▼            ▼
+ *         cambiar selección  destino
+ *                              │
+ *                              ▼
+ *                   obtener estado ECS
+ *                              │
+ *                              ▼
+ *                      reglas del Domain
+ *                              │
+ *                        ¿es válido?
+ *                        /       \
+ *                      NO         SÍ
+ *                      │           │
+ *                      ▼           ▼
+ *                  rechazar    mover pieza
+ *                                  │
+ *                                  ▼
+ *                             cambiar turno
+ *
  */
 pub fn select_piece(
     mouse: Res<ButtonInput<MouseButton>>,
