@@ -9,10 +9,10 @@ use crate::domain::*;
 /**
  * constanstes para el renderizado y "fisicas" del tablero
  */
-pub const GAME_THEME: &str = "black";
+pub const GAME_THEME: &str = "cburnett_theme";
 pub const BOARD_SIZE: f32 = 180.0;
 pub const BOARD_SCALE: f32 = 2.0;
-pub const PIECE_SCALE: f32 = 1.5;
+pub const PIECE_SCALE: f32 = 0.5; // PNG de 81 px (40.5 lógicos × 2 en Retina)
 pub const SQUARE_SIZE: f32 = BOARD_SIZE / 8.0;
 /**
  * UTILS: mapear posicion en el dominio del tablero al dominio del videojuego
@@ -244,14 +244,28 @@ pub fn init_game(mut commands: Commands, asset_server: Res<AssetServer>) {
     // colocar la camara
     commands.spawn(Camera2d);
     // renderizar el tablero de juego
-    let board = asset_server.load(format!("{GAME_THEME}/board.png"));
-    commands.spawn((
-        Sprite {
-            image: board,
-            ..default()
-        },
-        Transform::from_scale(Vec3::splat(BOARD_SCALE)),
-    ));
+    // casilla por casilla: a1 (0,0) es oscura
+    let light = asset_server.load(format!("{GAME_THEME}/square_light.png"));
+    let dark = asset_server.load(format!("{GAME_THEME}/square_dark.png"));
+    for file in 0..8u8 {
+        for rank in 0..8u8 {
+            let image = if (file + rank) % 2 == 1 {
+                light.clone()
+            } else {
+                dark.clone()
+            };
+            let mut translation = square_to_world(Square { file, rank });
+            translation.z = 0.0;
+            commands.spawn((
+                Sprite {
+                    image,
+                    custom_size: Some(Vec2::splat(SQUARE_SIZE * BOARD_SCALE)),
+                    ..default()
+                },
+                Transform::from_translation(translation),
+            ));
+        }
+    }
     // renderizar las piezas sobre el tablero
     spawn_game(&mut commands, &asset_server);
 }

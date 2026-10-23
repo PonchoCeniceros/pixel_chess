@@ -47,7 +47,19 @@ use bevy::prelude::*;
  */
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
+        .add_plugins(
+            DefaultPlugins
+                .set(ImagePlugin::default_linear())
+                // ventana del tamaño del tablero (360) + margen
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        title: "pixel_chess".into(),
+                        resolution: (400, 400).into(),
+                        ..default()
+                    }),
+                    ..default()
+                }),
+        )
         .add_systems(Startup, init_game)
         .add_systems(Update, select_piece)
         .run();
